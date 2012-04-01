@@ -239,9 +239,4 @@ def readmill_request(endpoint)
   "http://api.readmill.com#{endpoint}"
 end
 
-
-task :run => :environment do
-    puts "Updating feed..."
-    fetch_messages
-    puts "done."
-end
+fetch_messages
