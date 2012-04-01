@@ -1,12 +1,9 @@
 #!/usr/bin/env ruby
 require 'rubygems'
-require 'sinatra'
 require 'uri'
-require 'sinatra'
 require 'json'
 require 'rest_client'
 require 'data_mapper'
-require 'active_support/secure_random'
 require 'twitter'
 require 'nokogiri'
 
@@ -28,20 +25,24 @@ end
 DataMapper.finalize
 DataMapper::Logger.new($stdout, :debug)
 
-configure do
-  DataMapper.setup(:default, (ENV["DATABASE_URL"] || {
-    :adapter  => 'mysql',
-    :host     => 'localhost',
-    :username => 'root' ,
-    :password => '',
-    :database => 'bkmillr_dev'}))
-  DataMapper.auto_upgrade!  
+DataMapper.setup(:default, (ENV["DATABASE_URL"] || {
+  :adapter  => 'mysql',
+  :host     => 'localhost',
+  :username => 'root' ,
+  :password => '',
+  :database => 'bkmillr_dev'}))
+DataMapper.auto_upgrade!  
+
+READMILL_CLIENT_ID = "3157dd6728aacd2cf93e3588893e9848"
+READMILL_CLIENT_SECRET = "d2ddd931b979fcc461e677497f22bafc"
+READMILL_REDIRECT = "http://tweetmill.heroku.com/callback/readmill"
+
+Twitter.configure do |config|
+  config.consumer_key = "F6fdEc2IEDr8ysrOXeXwA"
+  config.consumer_secret = "c6WNSEgqndgoOW8RW9oP7jtgEjpWwflnQJMvdzYso"
+  config.oauth_token = "541793455-CoteuIjFNcz6qSy7wwgswSrX1d2ooSDBJTDJfS1N"
+  config.oauth_token_secret = "Gm1Zb46QFQ3nV8qeRt7L5mtsKOAbxG81eWyyqj8mT4"
 end
-
-set :readmill_client_id, "3157dd6728aacd2cf93e3588893e9848"
-set :readmill_client_secret, "d2ddd931b979fcc461e677497f22bafc"
-set :readmill_redirect, "http://0.0.0.0:4567/callback/readmill"
-
 
 def fetch_messages
   last_message = Message.first_or_create({:id => 1})
@@ -110,7 +111,7 @@ def share_highlight(user, reading_url, highlight)
 
   params = {
     :access_token => user.access_token,
-    :client_id => settings.readmill_client_id,
+    :client_id => READMILL_CLIENT_ID,
     :highlight => { :content => highlight,
                     :position => 0.0
                   }
@@ -126,7 +127,7 @@ def update_reading_progress(user, reading_url, percent)
     
   params = {
     :access_token => user.access_token,
-    :client_id => settings.readmill_client_id,
+    :client_id => READMILL_CLIENT_ID,
     :ping => { :identifier => SecureRandom.hex(2),
                :progress => (percent.to_f / 100.0)
           }
@@ -146,7 +147,7 @@ def update_reading_state(user, reading_url, action)
   
   params = {
     :access_token => user.access_token,
-    :client_id => settings.readmill_client_id,
+    :client_id => READMILL_CLIENT_ID,
     :reading => { :state => state }
   }
         
@@ -157,7 +158,7 @@ end
 def reading(user, isbn)
   params = {
     :access_token => user.access_token,
-    :client_id => settings.readmill_client_id,
+    :client_id => READMILL_CLIENT_ID,
     "q[isbn]" => isbn
   }
   
@@ -199,7 +200,7 @@ def start_reading(user, isbn)
   
   params = {
     :access_token => user.access_token,
-    :client_id => settings.readmill_client_id,
+    :client_id => READMILL_CLIENT_ID,
     :book => {
         :author => author,
         :isbn => isbn,
@@ -212,7 +213,7 @@ def start_reading(user, isbn)
     
   params = {
     :access_token => user.access_token,
-    :client_id => settings.readmill_client_id,
+    :client_id => READMILL_CLIENT_ID,
     :reading => {
         :state => 2,
         :private => "false",

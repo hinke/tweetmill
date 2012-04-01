@@ -1,5 +1,4 @@
 require 'rubygems'
-require 'sinatra'
 require 'uri'
 require 'sinatra'
 require 'json'
