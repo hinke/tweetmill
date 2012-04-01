@@ -5,6 +5,7 @@ require 'rest_client'
 require 'data_mapper'
 require 'twitter'
 require 'nokogiri'
+require 'securerandom'
 
 class User
   include DataMapper::Resource
@@ -22,7 +23,6 @@ class Message
 end
 
 DataMapper.finalize
-DataMapper::Logger.new($stdout, :debug)
 
 DataMapper.setup(:default, (ENV["DATABASE_URL"] || {
   :adapter  => 'mysql',
@@ -44,6 +44,8 @@ Twitter.configure do |config|
 end
 
 def fetch_messages
+  puts "Fetching new messages"
+  
   last_message = Message.first_or_create({:id => 1})
   messages = Twitter.direct_messages({:since_id => last_message.last_id})
   #messages = Twitter.direct_messages()
@@ -51,9 +53,11 @@ def fetch_messages
     last_message.last_id = messages[0].id.to_s
     last_message.save!
     messages.each do |m|
+      puts "New message arrived from #{m.sender.screen_name}: #{m.text}"
       decode_and_validate_message(m.text, m.sender.screen_name)
     end
   end
+  puts "Done"
   return
 end
 
@@ -89,7 +93,6 @@ def post_update(user, isbn, action)
       update_reading_state(user, reading_url, action)
     end
   else
-    puts "well"
     if reading_url.nil?
       respond(user, "You are not reading this book!") and return
     end
@@ -155,10 +158,13 @@ def update_reading_state(user, reading_url, action)
 end
 
 def reading(user, isbn)
+  title, author = book_info(isbn)
   params = {
     :access_token => user.access_token,
     :client_id => READMILL_CLIENT_ID,
-    "q[isbn]" => isbn
+    "q[isbn]" => isbn,
+    "q[author]" => author,
+    "q[title]" => title
   }
   
   begin 
