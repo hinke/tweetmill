@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-require 'rubygems'
 require 'uri'
 require 'json'
 require 'rest_client'
