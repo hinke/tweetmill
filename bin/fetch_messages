@@ -42,13 +42,6 @@ set :readmill_client_id, "3157dd6728aacd2cf93e3588893e9848"
 set :readmill_client_secret, "d2ddd931b979fcc461e677497f22bafc"
 set :readmill_redirect, "http://0.0.0.0:4567/callback/readmill"
 
-Twitter.configure do |config|
-  config.consumer_key = "F6fdEc2IEDr8ysrOXeXwA"
-  config.consumer_secret = "c6WNSEgqndgoOW8RW9oP7jtgEjpWwflnQJMvdzYso"
-  config.oauth_token = "541793455-CoteuIjFNcz6qSy7wwgswSrX1d2ooSDBJTDJfS1N"
-  config.oauth_token_secret = "Gm1Zb46QFQ3nV8qeRt7L5mtsKOAbxG81eWyyqj8mT4"
-end
-
 
 def fetch_messages
   last_message = Message.first_or_create({:id => 1})
