@@ -17,6 +17,12 @@ class User
   property :twitter_handle, String  
 end
 
+class Message
+  include DataMapper::Resource
+  property :id, Serial 
+  property :last_id, String, :default => 1
+end
+
 DataMapper.finalize
 DataMapper::Logger.new($stdout, :debug)
 
