@@ -1,0 +1,254 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'sinatra'
+require 'uri'
+require 'sinatra'
+require 'json'
+require 'rest_client'
+require 'data_mapper'
+require 'active_support/secure_random'
+require 'twitter'
+require 'nokogiri'
+
+class User
+  include DataMapper::Resource
+  property :id, Serial 
+  property :readmill_id, Integer
+  property :name, String
+  property :access_token, String
+  property :twitter_handle, String  
+end
+
+class Message
+  include DataMapper::Resource
+  property :id, Serial 
+  property :last_id, String, :default => 1
+end
+
+DataMapper.finalize
+DataMapper::Logger.new($stdout, :debug)
+
+configure do
+  DataMapper.setup(:default, (ENV["DATABASE_URL"] || {
+    :adapter  => 'mysql',
+    :host     => 'localhost',
+    :username => 'root' ,
+    :password => '',
+    :database => 'bkmillr_dev'}))
+  DataMapper.auto_upgrade!  
+end
+
+set :readmill_client_id, "3157dd6728aacd2cf93e3588893e9848"
+set :readmill_client_secret, "d2ddd931b979fcc461e677497f22bafc"
+set :readmill_redirect, "http://0.0.0.0:4567/callback/readmill"
+
+Twitter.configure do |config|
+  config.consumer_key = "F6fdEc2IEDr8ysrOXeXwA"
+  config.consumer_secret = "c6WNSEgqndgoOW8RW9oP7jtgEjpWwflnQJMvdzYso"
+  config.oauth_token = "541793455-CoteuIjFNcz6qSy7wwgswSrX1d2ooSDBJTDJfS1N"
+  config.oauth_token_secret = "Gm1Zb46QFQ3nV8qeRt7L5mtsKOAbxG81eWyyqj8mT4"
+end
+
+
+def fetch_messages
+  last_message = Message.first_or_create({:id => 1})
+  messages = Twitter.direct_messages({:since_id => last_message.last_id})
+  #messages = Twitter.direct_messages()
+  unless messages.empty? 
+    last_message.last_id = messages[0].id.to_s
+    last_message.save!
+    messages.each do |m|
+      decode_and_validate_message(m.text, m.sender.screen_name)
+    end
+  end
+  return
+end
+
+def decode_and_validate_message(message, sender_screen_name)
+  user = User.first({:twitter_handle => sender_screen_name})
+  if user
+    message = message.split(' ')
+    if message.size > 1
+      isbn = message.shift
+      action = message.join(' ')
+      
+      respond(user, "Invalid ISBN") and return unless isbn.size == 10 || isbn.size == 13
+      
+      post_update(user, isbn, action)
+    end
+  end
+end
+
+def post_update(user, isbn, action)
+  reading_url = reading(user, isbn)
+    
+  case action
+  when "start"
+    if !reading_url.nil?
+      respond(user, "You are already reading this book")
+    else
+      start_reading(user, isbn)
+    end
+  when "finish", "abandon"
+    if reading_url.nil?
+      respond(user, "You are not reading this book!")
+    else
+      update_reading_state(user, reading_url, action)
+    end
+  else
+    puts "well"
+    if reading_url.nil?
+      respond(user, "You are not reading this book!") and return
+    end
+    
+    begin
+      percent = Integer(action)
+      update_reading_progress(user, reading_url, percent)
+    rescue ArgumentError
+      if action[0] == '"' && action[-1] == '"'
+        share_highlight(user, reading_url, action[1..(action.size-2)])
+      end
+    end
+  end
+end
+
+def share_highlight(user, reading_url, highlight)
+  reading_url = "#{reading_url}/highlights"
+
+  params = {
+    :access_token => user.access_token,
+    :client_id => settings.readmill_client_id,
+    :highlight => { :content => highlight,
+                    :position => 0.0
+                  }
+  }
+  
+  RestClient.post(reading_url, params)
+  respond(user, "Nice highlight!")
+  
+end
+
+def update_reading_progress(user, reading_url, percent)
+  reading_url = "#{reading_url}/pings"
+    
+  params = {
+    :access_token => user.access_token,
+    :client_id => settings.readmill_client_id,
+    :ping => { :identifier => SecureRandom.hex(2),
+               :progress => (percent.to_f / 100.0)
+          }
+  }
+  
+  RestClient.post(reading_url, params)
+  respond(user, "Congrats, you just tracked some progress")
+  
+end
+
+def update_reading_state(user, reading_url, action)
+  
+  state = case action
+  when "finish" then 3
+  when "abandon" then 4
+  end
+  
+  params = {
+    :access_token => user.access_token,
+    :client_id => settings.readmill_client_id,
+    :reading => { :state => state }
+  }
+        
+    RestClient.put(reading_url, params)
+    respond(user, "Congrats, you just #{action}ed")
+end
+
+def reading(user, isbn)
+  params = {
+    :access_token => user.access_token,
+    :client_id => settings.readmill_client_id,
+    "q[isbn]" => isbn
+  }
+  
+  begin 
+    resp = RestClient.get(readmill_request("/users/#{user.readmill_id}/readings/exists"), :params => params)
+    if resp.code == 200
+      return resp.headers[:location].gsub("/users/#{user.readmill_id}", '')
+    else
+      return nil
+      
+    end
+  rescue RestClient::ResourceNotFound
+    return nil
+  end
+end
+
+def book_info(isbn)
+  params = {
+    :access_key => "PA52FISS",
+    :index1 => "isbn",
+    :value1 => isbn
+  }
+  
+  doc = Nokogiri::XML(RestClient.get("http://isbndb.com/api/books.xml", :params => params))
+  
+  if doc.root.elements[0]['total_results'] == "1"
+    title = doc.root.elements[0].elements[0].elements[0].inner_text
+    author = doc.root.elements[0].elements[0].elements[2].inner_text
+    return title, author
+  end
+end
+
+def start_reading(user, isbn)
+  title, author = book_info(isbn)
+  
+  if title.nil? or author.nil?
+    respond(user, "Could not find this book, sorry :/") and return
+  end
+  
+  params = {
+    :access_token => user.access_token,
+    :client_id => settings.readmill_client_id,
+    :book => {
+        :author => author,
+        :isbn => isbn,
+        :title => title
+    }
+  }
+    
+  resp = RestClient.post(readmill_request("/books"), params)    
+  book_url = resp.headers[:location]
+    
+  params = {
+    :access_token => user.access_token,
+    :client_id => settings.readmill_client_id,
+    :reading => {
+        :state => 2,
+        :private => "false",
+        :title => title
+    }
+  }
+  
+  resp = RestClient.post(book_url + "/readings", params)    
+  
+  if resp.code == 201
+    respond(user, "Yay, you've started reading!")
+  elsif resp.code == 422
+    respond(user, "You're already reading this book")
+  else
+    respond(user, "Something went wrong :/")
+  end  
+end
+
+def respond(user, message)
+  Twitter.direct_message_create(user.twitter_handle, message)
+end
+
+def readmill_request(endpoint)
+  "http://api.readmill.com#{endpoint}"
+end
+
+
+task :run => :environment do
+    puts "Updating feed..."
+    fetch_messages
+    puts "done."
+end
