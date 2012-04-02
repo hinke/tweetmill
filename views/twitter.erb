@@ -16,9 +16,10 @@
         
     <section class="twitter-handle">
       <label class="twitter-handle-label">I need to know your Twitter handle to recognize you</label>
-      <form action="/add_twitter_handle" class="twitter-handle-form">
+      <form action="/done" class="twitter-handle-form" method="post">
         <label class="twitter-handle-atlabel">@</label>
         <input type="text" name="twitter_handle" class="twitter-handle-input" />
+        <input type="hidden" name="access_token" value="<%= @access_token %>">
         <input type="submit" class="twitter-handle-submit" value="next"/>
       </form>
     </section>
