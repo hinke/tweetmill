@@ -1,24 +1,28 @@
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
 <head>
-<title>Tweetmill.me</title>
-<link rel="stylesheet" href="static/screen.css" type="text/css" media="screen" charset="utf-8">
+<title>Tweetmill</title>
+<link rel="stylesheet" href="static/app.css" type="text/css" media="screen" charset="utf-8">
 
 </head>
-<body>
-  
-  <header>
-    <div class="connect-box">
-      <h1>Tweetmill.me</h1>
-      <a id="authorize" href="/auth/readmill"></a>
-    </div>
+<body>  
+  <div class="main">
+    <header>
+      <a href="/" class="logo"></a>
+      <span class="tagline">a twitter bot for readmill</span>
+    </header>
     
-    <div class="name-box" style="display: none;">
-      <h1>The Book Report</h1>
-      <span>by Readmill</span>
+    <section class="welcome">
+      <h3 class="welcome-header">Hi, and welcome to Tweetmill.</h3>
+      <p class="welcome-text">I'm a bot that live inside of Twitter and if you send me something about a book you're reading I'll make that into something sharable on Readmill. Connect with your account to get started.<p>
+        
+      <a id="authorize" href="#"></a>
       
-      <h2 id="username"></h2>
-    </div>  
-  </header>
-  
+      <a href="/thanks">Need language help?</a>
+      
+    </section>
+      </div>
 </body>
 </html>

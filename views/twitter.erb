@@ -3,15 +3,26 @@
 
 <html lang="en">
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<title>Tweetmill.me</title>
-	<!-- Date: 2012-03-31 -->
+<title>Tweetmill</title>
+<link rel="stylesheet" href="static/app.css" type="text/css" media="screen" charset="utf-8">
+
 </head>
-<body>
-<form action="/done" method="POST">
-  <input type="text" name="twitter_handle" />
-  <input type="submit" value="I'm done!" />
-  <input type="hidden" name="access_token" value="<%= @access_token %>" />
-</form>
+<body>  
+  <div class="main">
+    <header>
+      <a href="/" class="logo"></a>
+      <span class="tagline">a twitter bot for readmill</span>
+    </header>
+        
+    <section class="twitter-handle">
+      <label class="twitter-handle-label">I need to know your Twitter handle to recognize you</label>
+      <form action="/add_twitter_handle" class="twitter-handle-form">
+        <label class="twitter-handle-atlabel">@</label>
+        <input type="text" name="twitter_handle" class="twitter-handle-input" />
+        <input type="submit" class="twitter-handle-submit" value="next"/>
+      </form>
+    </section>
+        
+  </div>
 </body>
 </html>

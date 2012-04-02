@@ -1,0 +1,199 @@
+@font-face {
+  font-family: 'ScalaSansSCRegular';
+  src: url('scalasans-regularsc-webfont.eot');
+  src: local('☺'), url('scalasans-regularsc-webfont.woff') format('woff'), url('scalasans-regularsc-webfont.ttf') format('truetype'), url('scalasans-regularsc-webfont.svg#webfontFFDkSr83') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'ScalaRegular';
+  src: url('scalasans-regular-webfont.eot');
+  src: local('☺'), url('scala-webfont.woff') format('woff'), url('scala-webfont.ttf') format('truetype'), url('scala-webfont.svg#webfontCQuAe3BJ') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'ScalaItalic';
+  src: url('scala-italic-webfont.eot');
+  src: local('☺'), url('scala-italic-webfont.woff') format('woff'), url('scala-italic-webfont.ttf') format('truetype'), url('scala-italic-webfont.svg#webfontlIRgPCMX') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
+  body {
+    margin: 0;
+    padding: 0;
+    background: url(pattern.png);
+    color: white;
+    font-size: 14px;
+    line-height: 21px;
+    font-family: "ScalaRegular", Georgia, Times, serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  a {
+    color: #d5d47d;
+    text-decoration: none;
+  }
+  
+  a:hover {
+    color: #edec8b;
+  }
+  
+  .main {
+    width: 700px;
+    margin: 100px auto 0;
+  }
+  
+  header {
+    border-bottom: 1px solid #595959;
+    padding-bottom: 20px;
+  }
+  
+  section {
+    padding-top: 50px;
+  }
+  
+  .logo {
+    display: block;
+    float: left;
+    margin-right: 20px;
+    width: 213px;
+    height: 25px;
+    background: url(logo.png) no-repeat;
+  }
+  
+  .tagline {
+    color: white;
+    font-family: "ScalaSansSCRegular", Helvetica, Arial, sans-serif;
+  }
+  
+  .twitter-handle-form {
+    width: 100%;
+    position: relative;
+  }
+
+  .twitter-handle-label {
+    color: white;
+    font-size: 20px;
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  
+  .twitter-handle-atlabel {
+    position: absolute;
+    border-radius: 3px;
+    z-index: 100;
+    font-size: 30px;
+    top: 30px;
+    left: 20px;
+    color: #808080;
+  }
+  
+  .twitter-handle-input {
+    font-family: "ScalaRegular", Georgia, Times, serif;
+    background: white;
+    width: 510px;
+    border: 0;
+    padding: 20px;
+    border-radius: 3px;
+    font-size: 30px;
+    text-indent: 1em;
+    float: left;
+  }
+  
+  .twitter-handle-input:focus {
+    outline: 0;
+  }
+  
+  .twitter-handle-submit {
+    display: block;
+    float: left;
+    background: #d5d47c;
+    border: 0;
+    margin-left: 20px;
+    padding: 25px;
+    font-size: 20px;
+    border-radius: 3px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+    font-family: "ScalaSansSCRegular", Helvetica, Arial, sans-serif;
+  }
+  
+  .twitter-handle-submit:hover {
+    background: #edec8b;
+  }
+  
+  .twitter-handle-submit:active {
+    box-shadow: none;
+  }
+  
+  h2 {
+    font-size: 40px;
+    font-weight: normal;
+    color: white;
+  }
+  
+  h3 {
+    font-size: 30px;
+    font-weight: normal;
+    color: #808080;
+  }
+  
+  .instructions {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  
+  .instruction {
+    margin: 0 0 30px 0;
+  }
+  
+  .instruction h4 {
+    font-size: 20px;
+    font-weight: normal;
+    color: white;
+    margin: 0;
+  }
+  
+  .instruction p {
+    color: #b2b2b2;
+    font-size: 14px;
+    line-height: 21px;
+    margin: 0;
+  }
+  
+  .instruction .example {
+    color: white;
+    font-size: 14px;
+  }
+  
+  .welcome-header {
+    color: white;
+    margin-top: 0;
+  }
+  
+  .welcome-text {
+    font-size: 20px;
+    line-height: 30px;
+    color: #b2b2b2;
+  }
+  
+  .welcome {
+    background: url(robot.png) no-repeat 0 50px;
+    padding-left: 145px;
+  }
+  
+  a#authorize {
+    display: block;
+    background: url(connect.png) no-repeat 0 0;
+    width: 237px;
+    height: 49px;
+    margin: 0 0 20px 0;
+  }
+  a#authorize:hover { background-position: 0 -50px; }
+  a#authorize:active { background-position: 0 -100px; }
