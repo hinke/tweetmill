@@ -73,7 +73,7 @@ get '/callback/readmill' do
   resp = JSON.parse(RestClient.post("http://readmill.com/oauth/token.json", token_params).to_str) rescue nil
   
   data = {
-    user: fetch_and_parse("http://api.readmill.com/me.json", resp['access_token'])
+    :user => fetch_and_parse("http://api.readmill.com/me.json", resp['access_token'])
   }
   
   user = User.first_or_create({ :readmill_id => data[:user]['id'] })
