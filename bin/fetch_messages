@@ -69,7 +69,7 @@ def decode_and_validate_message(message, sender_screen_name)
       isbn = message.shift
       action = message.join(' ')
       
-      respond(user, "Invalid ISBN") and return unless isbn.size == 10 || isbn.size == 13
+      respond(user, "Sorry, that doesn't look like a correct ISBN") and return unless isbn.size == 10 || isbn.size == 13
       
       post_update(user, isbn, action)
     end
@@ -82,21 +82,18 @@ def post_update(user, isbn, action)
   case action
   when "start"
     if !reading_url.nil?
-      respond(user, "You are already reading this book")
+      respond(user, "You are already reading this book. Try highlighting or updating progress.")
     else
       start_reading(user, isbn)
     end
   when "finish", "abandon"
     if reading_url.nil?
-      respond(user, "You are not reading this book!")
+      respond(user, "You are not reading this book! Send: #{isbn} start")
     else
       update_reading_state(user, reading_url, action)
     end
   else
-    if reading_url.nil?
-      respond(user, "You are not reading this book!") and return
-    end
-    
+    respond(user, "You are not reading this book! Send: #{isbn} start") and return if reading_url.nil? 
     begin
       percent = Integer(action)
       update_reading_progress(user, reading_url, percent)
@@ -119,8 +116,12 @@ def share_highlight(user, reading_url, highlight)
                   }
   }
   
-  RestClient.post(reading_url, params)
-  respond(user, "Nice highlight!")
+  begin  
+    RestClient.post(reading_url, params)
+    respond(user, "Nice highlight!")
+  rescue RestClient::UnprocessableEntity
+    respond(user, "Could not share highlight... Sorry :/")
+  end
   
 end
 
@@ -135,26 +136,52 @@ def update_reading_progress(user, reading_url, percent)
           }
   }
   
-  RestClient.post(reading_url, params)
-  respond(user, "Congrats, you just tracked some progress")
+  
+  begin  
+    RestClient.post(reading_url, params)
+    respond(user, "Congrats, you just reached #{percent}%")
+  rescue RestClient::UnprocessableEntity
+    respond(user, "Could not update progress... Sorry :/")
+  end
   
 end
 
 def update_reading_state(user, reading_url, action)
   
   state = case action
+  when "start" then 2
   when "finish" then 3
   when "abandon" then 4
   end
   
+  message = case action
+  when "start" then "Enjoy you new book."
+  when "finish" then "Congrats, you've just finished another book. Way to go!"
+  when "abandon" then "Don't feel guilty, just pick up something more interesting."
+  end
+    
   params = {
     :access_token => user.access_token,
     :client_id => READMILL_CLIENT_ID,
     :reading => { :state => state }
   }
-        
-    RestClient.put(reading_url, params)
-    respond(user, "Congrats, you just #{action}ed")
+    
+    begin
+      RestClient.put(reading_url, params)
+      respond(user, message)
+    rescue RestClient::UnprocessableEntity
+      respond(user, "Sorry, could not update your reading status...")
+      
+    end
+end
+
+def is_interesting?(reading_url, user)
+  params = {
+    :access_token => user.access_token,
+    :client_id => READMILL_CLIENT_ID
+  }
+  resp = JSON.parse(RestClient.get(reading_url, :params => params).to_str) rescue nil
+  resp['state'] == 1
 end
 
 def reading(user, isbn)
@@ -173,7 +200,6 @@ def reading(user, isbn)
       return resp.headers[:location].gsub("/users/#{user.readmill_id}", '')
     else
       return nil
-      
     end
   rescue RestClient::ResourceNotFound
     return nil
@@ -238,7 +264,12 @@ def start_reading(user, isbn)
 end
 
 def respond(user, message)
-  Twitter.direct_message_create(user.twitter_handle, message)
+  puts "#{user.twitter_handle}: #{message}"
+  begin
+    Twitter.direct_message_create(user.twitter_handle, message)
+  rescue Twitter::Error::Forbidden
+    Twitter.update("@#{user.twitter_handle} #{message}")
+  end
 end
 
 def readmill_request(endpoint)
