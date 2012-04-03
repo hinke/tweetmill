@@ -161,7 +161,7 @@ def update_reading_state(user, reading_url, action)
   end
   
   message = case action
-  when "start" then "Enjoy you new book."
+  when "start" then "Enjoy your new book."
   when "finish" then "Congrats, you've just finished another book. Way to go!"
   when "abandon" then "Don't feel guilty, just pick up something more interesting."
   end
