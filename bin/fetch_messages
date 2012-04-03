@@ -52,7 +52,7 @@ def fetch_messages
   unless messages.empty? 
     last_message.last_id = messages[0].id.to_s
     last_message.save!
-    messages.each do |m|
+    messages.reverse.each do |m|
       puts "New message arrived from #{m.sender.screen_name}: #{m.text}"
       decode_and_validate_message(m.text, m.sender.screen_name)
     end
@@ -82,7 +82,11 @@ def post_update(user, isbn, action)
   case action
   when "start"
     if !reading_url.nil?
-      respond(user, "You are already reading this book. Try highlighting or updating progress.")
+      if is_interesting?(reading_url, user)
+        update_reading_state(user, reading_url, "start")
+      else
+        respond(user, "You are already reading this book (#{isbn}). Try highlighting or updating progress.")
+      end
     else
       start_reading(user, isbn)
     end
