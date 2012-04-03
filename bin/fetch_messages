@@ -91,7 +91,7 @@ def post_update(user, isbn, action)
       start_reading(user, isbn)
     end
   when "finish", "abandon"
-    if reading_url.nil?
+    if reading_url.nil? || is_interesting?(reading_url, user)
       respond(user, "You are not reading this book! Send: #{isbn} start")
     else
       update_reading_state(user, reading_url, action)
