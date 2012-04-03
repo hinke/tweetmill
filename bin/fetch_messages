@@ -97,7 +97,7 @@ def post_update(user, isbn, action)
       update_reading_state(user, reading_url, action)
     end
   else
-    respond(user, "You are not reading this book! Send: #{isbn} start") and return if reading_url.nil? 
+    respond(user, "You are not reading this book! Send: #{isbn} start") and return if reading_url.nil? || is_interesting?(reading_url, user)
     begin
       percent = Integer(action)
       update_reading_progress(user, reading_url, percent)
