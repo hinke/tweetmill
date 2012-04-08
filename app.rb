@@ -94,7 +94,7 @@ end
 post '/done' do
   user = User.first({:access_token => params[:access_token]})
   if user
-    user.twitter_handle = params[:twitter_handle]
+    user.twitter_handle = params[:twitter_handle].downcase
     user.save
     Twitter.follow(user.twitter_handle)
     Twitter.update("@#{user.twitter_handle} Welcome to Tweetmill. Follow me and I will DM you otherwise @reply. Sometimes I take a few minutes to reply, sit tight.")
