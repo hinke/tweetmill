@@ -104,7 +104,7 @@ def post_update(user, isbn, action)
       percent = Integer(action)
       update_reading_progress(user, reading_url, percent)
     rescue ArgumentError
-      if action[0] == '"' && action[-1] == '"'
+      if ((action[0] == '"' && action[-1] == '"') || (action[0] == "\u201C" && action[-1] == "\u201D"))
         share_highlight(user, reading_url, action[1..(action.size-2)])
       else
         respond(user, "Sorry, could not understand that...")
