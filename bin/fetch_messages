@@ -30,6 +30,7 @@ DataMapper.setup(:default, (ENV["DATABASE_URL"] || {
   :username => 'root' ,
   :password => '',
   :database => 'bkmillr_dev'}))
+
 DataMapper.auto_upgrade!  
 
 READMILL_CLIENT_ID = "3157dd6728aacd2cf93e3588893e9848"
@@ -48,7 +49,6 @@ def fetch_messages
   
   last_message = Message.first_or_create({:id => 1})
   messages = Twitter.direct_messages({:since_id => last_message.last_id})
-  #messages = Twitter.direct_messages()
   unless messages.empty? 
     last_message.last_id = messages[0].id.to_s
     last_message.save!
@@ -82,6 +82,16 @@ def post_update(user, isbn, action)
   reading_url = reading(user, isbn)
     
   case action
+  when "interesting"
+    if !reading_url.nil?
+      if is_interesting?(reading_url, user)
+        respond(user, "You've already marked this book as interesting, time to start reading!")
+      else
+        respond(user, "You are already reading this book (#{isbn}). Try highlighting or updating progress.")
+      end
+    else
+      start_or_interesting_reading(user, isbn, 1)
+    end
   when "start"
     if !reading_url.nil?
       if is_interesting?(reading_url, user)
@@ -90,7 +100,7 @@ def post_update(user, isbn, action)
         respond(user, "You are already reading this book (#{isbn}). Try highlighting or updating progress.")
       end
     else
-      start_reading(user, isbn)
+      start_or_interesting_reading(user, isbn, 2)
     end
   when "finish", "abandon"
     if reading_url.nil? || is_interesting?(reading_url, user)
@@ -230,7 +240,7 @@ def book_info(isbn)
   end
 end
 
-def start_reading(user, isbn)
+def start_or_interesting_reading(user, isbn, state)
   title, author = book_info(isbn)
   
   if title.nil? or author.nil?
@@ -254,21 +264,31 @@ def start_reading(user, isbn)
     :access_token => user.access_token,
     :client_id => READMILL_CLIENT_ID,
     :reading => {
-        :state => 2,
+        :state => state,
         :private => "false",
         :title => title
     }
   }
-  
+
   resp = RestClient.post(book_url + "/readings", params)    
-  
+
+
+  ok_message = case state
+  when 1 then "Just marked a new book as interesting, well found!"
+  when 2 then "Yay, you've started reading!"
+  end
+ 
+  fail_message = case state
+  when 1 then "You already have this book."
+  when 2 then "You're already reading this book."
+  end 
   if resp.code == 201
-    respond(user, "Yay, you've started reading!")
+    respond(user, ok_message)
   elsif resp.code == 422
-    respond(user, "You're already reading this book")
+    respond(user, fail_message)
   else
     respond(user, "Something went wrong :/")
-  end  
+  end 
 end
 
 def respond(user, message)

@@ -32,7 +32,7 @@ configure do
     :host     => 'localhost',
     :username => 'root' ,
     :password => '',
-    :database => 'bkmillr_dev'}))
+    :database => 'tweetmill'}))
   DataMapper.auto_upgrade!  
 end
 
