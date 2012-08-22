@@ -101,7 +101,7 @@ post '/done' do
     begin
       Twitter.update("@#{user.twitter_handle} Welcome to Tweetmill. Follow me and I will DM you otherwise @reply. Sometimes I take a few minutes to reply, sit tight.")
     rescue Twitter::Error::Forbidden
-      Twitter.update("@#{user.twitter_handle} Welcome to Tweetmill. Follow me and I will DM you otherwise @reply. I might take some minutes to reply, keep calm.")
+      Twitter.update("@#{user.twitter_handle} Welcome to Tweetmill. Follow me and I will DM you otherwise @reply. I might take some minutes to reply, keep calm.") rescue Twitter::Error::Forbidden
     end
 
     redirect "/thanks"
