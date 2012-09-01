@@ -4,6 +4,7 @@ gem 'rest-client'
 gem 'data_mapper'
 gem 'twitter'
 gem 'nokogiri'
+gem 'clockwork'
 
 group :development do
   gem 'mysql2'

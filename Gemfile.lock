@@ -6,6 +6,8 @@ GEM
       multi_json (~> 1.0)
     addressable (2.2.7)
     bcrypt-ruby (3.0.1)
+    clockwork (0.4.1)
+      tzinfo
     data_mapper (1.2.0)
       dm-aggregates (~> 1.2.0)
       dm-constraints (~> 1.2.0)
@@ -92,12 +94,14 @@ GEM
       faraday (~> 0.7)
       multi_json (~> 1.0)
       simple_oauth (~> 0.1)
+    tzinfo (0.3.33)
     uuidtools (2.1.2)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
+  clockwork
   data_mapper
   dm-mysql-adapter
   dm-postgres-adapter

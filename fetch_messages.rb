@@ -6,6 +6,11 @@ require 'data_mapper'
 require 'twitter'
 require 'nokogiri'
 require 'securerandom'
+require 'clockwork'
+
+include Clockwork
+
+every(30.seconds, 'Fetch messages') { fetch_messages }
 
 class User
   include DataMapper::Resource
@@ -29,7 +34,7 @@ DataMapper.setup(:default, (ENV["DATABASE_URL"] || {
   :host     => 'localhost',
   :username => 'root' ,
   :password => '',
-  :database => 'bkmillr_dev'}))
+  :database => 'tweetmill'}))
 
 DataMapper.auto_upgrade!  
 
@@ -303,5 +308,3 @@ end
 def readmill_request(endpoint)
   "http://api.readmill.com#{endpoint}"
 end
-
-fetch_messages
