@@ -137,6 +137,7 @@ def progress_update(action)
       begin
         pos = Integer(a[0])
         tot = Integer(a[1])
+        return false unless Math.abs(pos) < Math.abs(tot)
         return Integer((pos.to_f/tot.to_f)*100).to_s
       rescue Exception => e
         #noop
