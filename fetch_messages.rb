@@ -53,15 +53,16 @@ def fetch_messages
   puts "Fetching new messages"
   
   last_message = Message.first_or_create({:id => 1})
-  messages = Twitter.direct_messages({:since_id => last_message.last_id})
-  unless messages.empty? 
-    last_message.last_id = messages[0].id.to_s
-    last_message.save!
-    messages.reverse.each do |m|
-      puts "New message arrived from #{m.sender.screen_name}: #{m.text}"
-      decode_and_validate_message(m.text, m.sender.screen_name.downcase)
-    end
-  end
+  puts "last message #{last_message}"
+  #messages = Twitter.direct_messages({:since_id => last_message.last_id})
+  #unless messages.empty? 
+  #  last_message.last_id = messages[0].id.to_s
+  #  last_message.save!
+  #  messages.reverse.each do |m|
+  #    puts "New message arrived from #{m.sender.screen_name}: #{m.text}"
+  #    decode_and_validate_message(m.text, m.sender.screen_name.downcase)
+  #  end
+  #end
   puts "Done"
   return
 end
