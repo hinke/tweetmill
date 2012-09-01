@@ -40,7 +40,7 @@ DataMapper.auto_upgrade!
 
 READMILL_CLIENT_ID = "3157dd6728aacd2cf93e3588893e9848"
 READMILL_CLIENT_SECRET = "d2ddd931b979fcc461e677497f22bafc"
-READMILL_REDIRECT = "http://tweetmill.heroku.com/callback/readmill"
+READMILL_REDIRECT = "http://tweetmill.herokuapp.com/callback/readmill"
 
 Twitter.configure do |config|
   config.consumer_key = "F6fdEc2IEDr8ysrOXeXwA"
@@ -80,7 +80,7 @@ def decode_and_validate_message(message, sender_screen_name)
       post_update(user, isbn, action)
     end
   else
-    Twitter.update("@#{sender_screen_name} Sorry, don't know who you are. Connect at http://tweetmill.heroku.com/")
+    Twitter.update("@#{sender_screen_name} Sorry, don't know who you are. Connect at http://tweetmill.herokuapp.com/")
   end
 end
 

@@ -45,7 +45,7 @@ end
 
 set :readmill_client_id, "3157dd6728aacd2cf93e3588893e9848"
 set :readmill_client_secret, "d2ddd931b979fcc461e677497f22bafc"
-set :readmill_redirect, "http://tweetmill.heroku.com/callback/readmill"
+set :readmill_redirect, "http://tweetmill.herokuapp.com/callback/readmill"
 
 def fetch_and_parse(uri, token = nil, limit = nil)
   puts "Fetching and parsing: #{uri} with token #{session[:token]}"
