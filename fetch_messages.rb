@@ -115,10 +115,9 @@ def post_update(user, isbn, action)
     end
   else
     respond(user, "You are not reading this book! Send: #{isbn} start") and return if reading_url.nil? || is_interesting?(reading_url, user)
-    begin
-      percent = Integer(action)
-      update_reading_progress(user, reading_url, percent)
-    rescue ArgumentError
+    if progress_update(action)
+      update_reading_progress(user, reading_url, progress_update(action))
+    else
       if ((action[0] == '"' && action[-1] == '"') || (action[0] == "\u201C" && action[-1] == "\u201D"))
         share_highlight(user, reading_url, action[1..(action.size-2)])
       else
@@ -126,6 +125,26 @@ def post_update(user, isbn, action)
       end
     end
   end
+end
+
+def progress_update(action)
+  begin
+    percent = Integer(action)
+    return percent.to_s
+  rescue ArgumentError
+    a = action.to_s.split('/')
+    if a.size == 2
+      begin
+        pos = Integer(a[0])
+        tot = Integer(a[1])
+        return Integer((pos.to_f/tot.to_f)*100)).to_s
+      rescue Exception => e
+        #noop
+      end
+    end
+  end
+
+  return false
 end
 
 def share_highlight(user, reading_url, highlight)
