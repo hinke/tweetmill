@@ -53,7 +53,7 @@ def fetch_messages
   puts "Fetching new messages"
   
   last_message = Message.first_or_create({:id => 1})
-  puts "last message #{last_message}"
+  puts "last message #{last_message.last_id}"
   #messages = Twitter.direct_messages({:since_id => last_message.last_id})
   #unless messages.empty? 
   #  last_message.last_id = messages[0].id.to_s
